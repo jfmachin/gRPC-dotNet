@@ -1,5 +1,7 @@
 ﻿using Blog;
 using Grpc.Core;
+using Grpc.Reflection;
+using Grpc.Reflection.V1Alpha;
 using server.Services;
 using System.IO;
 
@@ -9,8 +11,12 @@ namespace server {
         static void Main(string[] args) {
             Server server = null;
             try {
+                var reflectionService = new ReflectionServiceImpl(BlogService.Descriptor, ServerReflection.Descriptor);
                 server = new Server() {
-                    Services = { BlogService.BindService(new BlogServiceImpl()) },
+                    Services = { 
+                        BlogService.BindService(new BlogServiceImpl()),
+                        ServerReflection.BindService(reflectionService)
+                    },
                     Ports = { new ServerPort("localhost", port, ServerCredentials.Insecure) }
                 };
 
